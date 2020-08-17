@@ -1,26 +1,53 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { PureComponent } from "react"
+import { Document, Page, pdfjs } from "react-pdf"
+import throttle from "lodash.throttle"
+import pdf from "./resume.pdf";
+import 'react-pdf/dist/Page/AnnotationLayer.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+
+class App extends PureComponent {
+  constructor(props) {
+    super(props)
+    this.state = {width: null}
+  }
+
+  componentDidMount () {
+    this.setDivSize()
+    window.addEventListener("resize", throttle(this.setDivSize, 500))
+  }
+
+  componentWillUnmount () {
+    window.removeEventListener("resize", throttle(this.setDivSize, 500))
+  }
+
+  setDivSize = () => {
+    this.setState({width: this.pdfWrapper.getBoundingClientRect().width})
+  }
+
+  render() {
+    return (
+      <div id="row" style={{height: "100vh", width: "100vw", display: "flex"}}>
+        <div id="pdfWrapper" style={{width: "100vw"}} ref={(ref) => this.pdfWrapper = ref}>
+          <PdfComponent wrapperDivSize={this.state.width} />
+        </div>
+      </div>
+    )
+  }
 }
 
-export default App;
+class PdfComponent extends PureComponent {
+  render() {
+    return (
+      <div>
+        <Document
+          file={pdf}
+        >
+          <Page pageIndex={0} width={this.props.wrapperDivSize} />
+        </Document>
+      </div>
+    )
+  }
+}
+
+export default App
