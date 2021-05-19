@@ -44,6 +44,7 @@ class PdfComponent extends PureComponent {
           file={pdf}
         >
           <Page pageIndex={0} width={this.props.wrapperDivSize} />
+          <Page pageIndex={1} width={this.props.wrapperDivSize} />
         </Document>
       </div>
     )
